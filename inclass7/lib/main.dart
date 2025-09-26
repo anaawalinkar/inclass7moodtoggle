@@ -1,122 +1,288 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => MoodModel(),
+      child: const MyApp(),
+    ),
+  );
+}
+
+class MoodModel with ChangeNotifier {
+  String _currentMood = 'Happy';
+  String _currentMoodImage = 'assets/happy.jpeg';
+
+  String get currentMood => _currentMood;
+  String get currentMoodImage => _currentMoodImage;
+
+  void setHappy() {
+    _currentMood = 'Happy';
+    _currentMoodImage = 'assets/happy.jpeg';
+    notifyListeners();
+  }
+
+  void setSad() {
+    _currentMood = 'Sad';
+    _currentMoodImage = 'assets/sad.jpeg';
+    notifyListeners();
+  }
+
+  void setExcited() {
+    _currentMood = 'Excited';
+    _currentMoodImage = 'assets/excited.jpeg';
+    notifyListeners();
+  }
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Mood Toggle Challenge',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        primarySwatch: Colors.blue,
+        useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const HomePage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: const Text('Mood Toggle Challenge'),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.blue.shade100, Colors.purple.shade100],
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'How are you feeling today?',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepPurple,
+                ),
+              ),
+              const SizedBox(height: 40),
+              const MoodDisplay(),
+              const SizedBox(height: 40),
+              const MoodButtons(),
+              const SizedBox(height: 20),
+              Consumer<MoodModel>(
+                builder: (context, moodModel, child) {
+                  return Text(
+                    'Current Mood: ${moodModel.currentMood}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.deepPurple,
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+}
+
+class MoodDisplay extends StatelessWidget {
+  const MoodDisplay({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<MoodModel>(
+      builder: (context, moodModel, child) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.9),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Image.asset(
+                moodModel.currentMoodImage,
+                width: 120,
+                height: 120,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+                  // Fallback if image fails to load
+                  return Container(
+                    width: 120,
+                    height: 120,
+                    color: Colors.grey.shade200,
+                    child: Icon(
+                      Icons.sentiment_dissatisfied,
+                      size: 60,
+                      color: Colors.grey.shade400,
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 10),
+              Text(
+                _getMoodEmoji(moodModel.currentMood),
+                style: const TextStyle(fontSize: 40),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  String _getMoodEmoji(String mood) {
+    switch (mood) {
+      case 'Happy':
+        return '😊';
+      case 'Sad':
+        return '😢';
+      case 'Excited':
+        return '🎉';
+      default:
+        return '😊';
+    }
+  }
+}
+
+class MoodButtons extends StatelessWidget {
+  const MoodButtons({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _buildMoodButton(
+          context: context,
+          mood: 'Happy',
+          imagePath: 'assets/happy.jpeg',
+          color: Colors.green,
+          onPressed: () {
+            Provider.of<MoodModel>(context, listen: false).setHappy();
+          },
+        ),
+        _buildMoodButton(
+          context: context,
+          mood: 'Sad',
+          imagePath: 'assets/sad.jpeg',
+          color: Colors.blue,
+          onPressed: () {
+            Provider.of<MoodModel>(context, listen: false).setSad();
+          },
+        ),
+        _buildMoodButton(
+          context: context,
+          mood: 'Excited',
+          imagePath: 'assets/excited.jpeg',
+          color: Colors.orange,
+          onPressed: () {
+            Provider.of<MoodModel>(context, listen: false).setExcited();
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMoodButton({
+    required BuildContext context,
+    required String mood,
+    required String imagePath,
+    required Color color,
+    required VoidCallback onPressed,
+  }) {
+    return Column(
+      children: [
+        Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.8),
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: color.withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: InkWell(
+            onTap: onPressed,
+            borderRadius: BorderRadius.circular(15),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Image.asset(
+                imagePath,
+                width: 40,
+                height: 40,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+                  return Center(
+                    child: Text(
+                      _getMoodEmoji(mood),
+                      style: const TextStyle(fontSize: 24),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          mood,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: color,
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _getMoodEmoji(String mood) {
+    switch (mood) {
+      case 'Happy':
+        return '😊';
+      case 'Sad':
+        return '😢';
+      case 'Excited':
+        return '🎉';
+      default:
+        return '😊';
+    }
   }
 }
